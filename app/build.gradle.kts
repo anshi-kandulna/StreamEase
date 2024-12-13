@@ -53,4 +53,9 @@ dependencies {
     //Glide
     implementation(libs.glide)
     annotationProcessor(libs.compiler)
+    //exoplayer
+    implementation(libs.exoplayer)
+    
+
+
 }

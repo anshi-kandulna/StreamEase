@@ -8,7 +8,10 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 
-class VideoAdapter(private val videos: List<Video>) : RecyclerView.Adapter<VideoAdapter.VideoViewHolder>() {
+class VideoAdapter(
+    private val videos: List<Video>,
+    private val onClick: (String) -> Unit  // Add a click handler to pass the video URL
+) : RecyclerView.Adapter<VideoAdapter.VideoViewHolder>() {
 
     // ViewHolder class to hold references to the views using findViewById
     inner class VideoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -23,6 +26,12 @@ class VideoAdapter(private val videos: List<Video>) : RecyclerView.Adapter<Video
 
             // Set the title (using the user's name)
             titleTextView.text = video.user.name  // Setting the user's name as title
+
+            // Set up the click listener for the item
+            itemView.setOnClickListener {
+                // When the item is clicked, pass the video URL to the click handler
+                onClick(video.video_files.firstOrNull()?.link ?: "") // Pass the first video file URL
+            }
         }
     }
 

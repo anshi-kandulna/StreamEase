@@ -1,5 +1,6 @@
 package com.example.streamease
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -47,8 +48,13 @@ class MainActivity : AppCompatActivity() {
             override fun onResponse(call: Call<VideoResponse>, response: Response<VideoResponse>) {
                 if (response.isSuccessful && response.body() != null) {
                     val videoResponse = response.body()!!
-                    // Pass the list of videos to the adapter
-                    videoAdapter = VideoAdapter(videoResponse.videos)
+                    // Pass the list of videos to the adapter and handle item clicks
+                    videoAdapter = VideoAdapter(videoResponse.videos) { videoUrl ->
+                        // When a card is clicked, launch PlayerActivity with the video URL
+                        val intent = Intent(this@MainActivity, PlayerActivity::class.java)
+                        intent.putExtra("videoUrl", videoUrl) // Pass the video URL to PlayerActivity
+                        startActivity(intent)
+                    }
                     recyclerView.adapter = videoAdapter
                 } else {
                     // Handle API error
