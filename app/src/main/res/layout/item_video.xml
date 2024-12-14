@@ -10,6 +10,7 @@
     android:layout_margin="4dp"
     app:cardCornerRadius="8dp"
     app:cardElevation="4dp"
+    android:backgroundTint="#30ffffff"
     tools:context=".MainActivity">
 
     <!-- LinearLayout inside the CardView to contain image and title -->

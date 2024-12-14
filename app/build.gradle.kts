@@ -55,7 +55,11 @@ dependencies {
     annotationProcessor(libs.compiler)
     //exoplayer
     implementation(libs.exoplayer)
-    
+    //lottie
+    implementation(libs.lottie)
+    implementation(libs.lottie.v600)
+
+
 
 
 }

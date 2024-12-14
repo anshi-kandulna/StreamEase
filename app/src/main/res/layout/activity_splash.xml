@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black">
+
+    <!-- Lottie Animation positioned at the center -->
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/lottieAnimationView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:lottie_rawRes="@raw/curve"
+        app:lottie_autoPlay="true"
+        app:lottie_loop="false"
+        android:layout_marginBottom="10dp"
+        android:layout_gravity="center" />
+
+    <!-- TextView over the Lottie Animation -->
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="StreamEase"
+        android:textSize="60sp"
+        android:textColor="@color/white"
+        android:fontFamily="@font/noggin"
+        android:gravity="center"
+        android:layout_gravity="center" />
+
+</FrameLayout>
