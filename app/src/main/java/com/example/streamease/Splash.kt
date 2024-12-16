@@ -1,14 +1,23 @@
 package com.example.streamease
 
 import android.animation.Animator
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.airbnb.lottie.LottieAnimationView
 
 class Splash : AppCompatActivity() {
+    @SuppressLint("MissingInflatedId", "ResourceType")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        enableEdgeToEdge()
+        // Adjusting padding for system bars (status bar, navigation bar)
+
         setContentView(R.layout.activity_splash)
 
         // Get the LottieAnimationView by ID
@@ -24,7 +33,7 @@ class Splash : AppCompatActivity() {
 
             override fun onAnimationEnd(animation: Animator) {
                 // Navigate to MainActivity when the animation ends
-                val intent = Intent(this@Splash, MainActivity::class.java)
+                val intent = Intent(this@Splash, LoginActivity::class.java)
                 startActivity(intent)
                 finish() // Finish Splash Activity to remove it from the back stack
             }
