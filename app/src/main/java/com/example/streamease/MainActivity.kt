@@ -2,6 +2,7 @@ package com.example.streamease
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -78,15 +79,20 @@ class MainActivity : AppCompatActivity() {
     private fun fetchVideos(page: Int) {
         val apiKey = getString(R.string.api_key) // Retrieve the API key from strings.xml
         isLoading = true
+        videoAdapter.setLoading(true) // Show the loading spinner while making the request
 
         // Example API request using Retrofit to fetch popular videos
-        apiService.getVideos(apiKey, page, perPage = 20).enqueue(object : Callback<VideoResponse> {
+        apiService.getVideos(apiKey, page, perPage = 80).enqueue(object : Callback<VideoResponse> {
             override fun onResponse(call: Call<VideoResponse>, response: Response<VideoResponse>) {
                 isLoading = false
+                videoAdapter.setLoading(false) // Hide the loading spinner once the response is received
+
                 if (response.isSuccessful && response.body() != null) {
                     val videoResponse = response.body()!!
                     videoList.addAll(videoResponse.videos) // Append new videos to the list
-                    videoAdapter.notifyDataSetChanged()
+
+                    // Call addVideos to add new items to the adapter
+                    videoAdapter.addVideos(videoResponse.videos)
 
                     // Check if it's the last page
                     isLastPage = videoResponse.videos.isEmpty()
@@ -97,6 +103,8 @@ class MainActivity : AppCompatActivity() {
 
             override fun onFailure(call: Call<VideoResponse>, t: Throwable) {
                 isLoading = false
+                videoAdapter.setLoading(false) // Hide the loading spinner in case of failure
+
                 Toast.makeText(this@MainActivity, "Request failed: ${t.message}", Toast.LENGTH_SHORT).show()
             }
         })
