@@ -19,6 +19,11 @@ class MainActivity : AppCompatActivity() {
     private lateinit var videoAdapter: VideoAdapter
     private lateinit var apiService: PexelsApiService
 
+    private val videoList = mutableListOf<Video>() // List to store videos
+    private var currentPage = 1                   // Current page number
+    private var isLoading = false                 // Loading state
+    private var isLastPage = false                // Last page state
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge() // Enable edge-to-edge display
@@ -37,33 +42,61 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        fetchPopularVideos() // Fetch the videos on startup
+        videoAdapter = VideoAdapter(videoList) { videoUrl ->
+            // Launch PlayerActivity with the video URL
+            val intent = Intent(this@MainActivity, PlayerActivity::class.java)
+            intent.putExtra("videoUrl", videoUrl)
+            startActivity(intent)
+        }
+        recyclerView.adapter = videoAdapter
+
+        setupScrollListener() // Set up infinite scrolling
+        fetchVideos(currentPage) // Fetch the first page of videos
     }
 
-    private fun fetchPopularVideos() {
+    private fun setupScrollListener() {
+        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+
+                // Check if the user has scrolled to the bottom and not loading
+                if (!isLoading && !isLastPage) {
+                    val visibleItemCount = layoutManager.childCount
+                    val totalItemCount = layoutManager.itemCount
+                    val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
+
+                    if (visibleItemCount + firstVisibleItemPosition >= totalItemCount && firstVisibleItemPosition >= 0) {
+                        currentPage++ // Increment page
+                        fetchVideos(currentPage)
+                    }
+                }
+            }
+        })
+    }
+
+    private fun fetchVideos(page: Int) {
         val apiKey = getString(R.string.api_key) // Retrieve the API key from strings.xml
+        isLoading = true
 
         // Example API request using Retrofit to fetch popular videos
-        apiService.getPopularVideos(apiKey, page = 1, perPage = 80).enqueue(object : Callback<VideoResponse> {
+        apiService.getVideos(apiKey, page, perPage = 20).enqueue(object : Callback<VideoResponse> {
             override fun onResponse(call: Call<VideoResponse>, response: Response<VideoResponse>) {
+                isLoading = false
                 if (response.isSuccessful && response.body() != null) {
                     val videoResponse = response.body()!!
-                    // Pass the list of videos to the adapter and handle item clicks
-                    videoAdapter = VideoAdapter(videoResponse.videos) { videoUrl ->
-                        // When a card is clicked, launch PlayerActivity with the video URL
-                        val intent = Intent(this@MainActivity, PlayerActivity::class.java)
-                        intent.putExtra("videoUrl", videoUrl) // Pass the video URL to PlayerActivity
-                        startActivity(intent)
-                    }
-                    recyclerView.adapter = videoAdapter
+                    videoList.addAll(videoResponse.videos) // Append new videos to the list
+                    videoAdapter.notifyDataSetChanged()
+
+                    // Check if it's the last page
+                    isLastPage = videoResponse.videos.isEmpty()
                 } else {
-                    // Handle API error
                     Toast.makeText(this@MainActivity, "Error: ${response.code()}", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onFailure(call: Call<VideoResponse>, t: Throwable) {
-                // Handle failure (e.g., network issue)
+                isLoading = false
                 Toast.makeText(this@MainActivity, "Request failed: ${t.message}", Toast.LENGTH_SHORT).show()
             }
         })

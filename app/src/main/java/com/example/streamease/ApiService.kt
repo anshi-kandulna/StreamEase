@@ -8,7 +8,7 @@ import retrofit2.Call
 interface PexelsApiService {
 
     @GET("videos/popular")
-    fun getPopularVideos(
+    fun getVideos(
         @Header("Authorization") apiKey: String, // API key for authentication
         @Query("page") page: Int,
         @Query("per_page") perPage: Int
