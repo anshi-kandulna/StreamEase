@@ -6,6 +6,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -19,40 +20,65 @@ class MainActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var videoAdapter: VideoAdapter
     private lateinit var apiService: PexelsApiService
+    private lateinit var searchView: SearchView
 
-    private val videoList = mutableListOf<Video>() // List to store videos
-    private var currentPage = 1                   // Current page number
-    private var isLoading = false                 // Loading state
-    private var isLastPage = false                // Last page state
+    private val videoList = mutableListOf<Video>()
+    private var currentPage = 1
+    private var isLoading = false
+    private var isLastPage = false
+    private var currentQuery: String? = null // Track current search query
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge() // Enable edge-to-edge display
+        enableEdgeToEdge()
         setContentView(R.layout.activity_main)
-
-        recyclerView = findViewById(R.id.recyclerView)
-        recyclerView.layoutManager = LinearLayoutManager(this)
-
-        // Initialize the API service
-        apiService = ApiClient.getClient().create(PexelsApiService::class.java)
-
-        // Adjusting padding for system bars (status bar, navigation bar)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main_layout)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
 
+        recyclerView = findViewById(R.id.recyclerView)
+        searchView = findViewById(R.id.searchView)
+
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        apiService = ApiClient.getClient().create(PexelsApiService::class.java)
+
         videoAdapter = VideoAdapter(videoList) { videoUrl ->
-            // Launch PlayerActivity with the video URL
             val intent = Intent(this@MainActivity, PlayerActivity::class.java)
             intent.putExtra("videoUrl", videoUrl)
             startActivity(intent)
         }
         recyclerView.adapter = videoAdapter
 
-        setupScrollListener() // Set up infinite scrolling
-        fetchVideos(currentPage) // Fetch the first page of videos
+        setupScrollListener()
+        setupSearchView()
+        fetchVideos(currentPage) // Fetch random videos initially
+    }
+
+    private fun setupSearchView() {
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                if (!query.isNullOrEmpty()) {
+                    currentQuery = query
+                    resetVideos()
+                    fetchVideos(currentPage, query) // Fetch videos with search query
+                }
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                // Optional: Implement live search here
+                return false
+            }
+        })
+
+        searchView.setOnCloseListener {
+            currentQuery = null
+            resetVideos()
+            fetchVideos(currentPage) // Fetch random videos
+            false
+        }
     }
 
     private fun setupScrollListener() {
@@ -61,40 +87,45 @@ class MainActivity : AppCompatActivity() {
                 super.onScrolled(recyclerView, dx, dy)
                 val layoutManager = recyclerView.layoutManager as LinearLayoutManager
 
-                // Check if the user has scrolled to the bottom and not loading
+                // Hide the search bar when scrolling down
+                if (dy > 0) searchView.clearFocus()
+
                 if (!isLoading && !isLastPage) {
                     val visibleItemCount = layoutManager.childCount
                     val totalItemCount = layoutManager.itemCount
                     val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
 
                     if (visibleItemCount + firstVisibleItemPosition >= totalItemCount && firstVisibleItemPosition >= 0) {
-                        currentPage++ // Increment page
-                        fetchVideos(currentPage)
+                        currentPage++
+                        fetchVideos(currentPage, currentQuery) // Fetch more results
                     }
                 }
             }
         })
     }
 
-    private fun fetchVideos(page: Int) {
-        val apiKey = getString(R.string.api_key) // Retrieve the API key from strings.xml
+    private fun fetchVideos(page: Int, query: String? = null) {
+        val apiKey = getString(R.string.api_key)
         isLoading = true
-        videoAdapter.setLoading(true) // Show the loading spinner while making the request
+        videoAdapter.setLoading(true)
 
-        // Example API request using Retrofit to fetch popular videos
-        apiService.getVideos(apiKey, page, perPage = 80).enqueue(object : Callback<VideoResponse> {
+        val call = if (query.isNullOrEmpty()) {
+            // Fetch random videos
+            apiService.getVideos(apiKey, page, perPage = 80)
+        } else {
+            // Fetch videos based on search query
+            apiService.searchVideos(apiKey, query, page, perPage = 80)
+        }
+
+        call.enqueue(object : Callback<VideoResponse> {
             override fun onResponse(call: Call<VideoResponse>, response: Response<VideoResponse>) {
                 isLoading = false
-                videoAdapter.setLoading(false) // Hide the loading spinner once the response is received
+                videoAdapter.setLoading(false)
 
                 if (response.isSuccessful && response.body() != null) {
                     val videoResponse = response.body()!!
-                    videoList.addAll(videoResponse.videos) // Append new videos to the list
-
-                    // Call addVideos to add new items to the adapter
+                    videoList.addAll(videoResponse.videos)
                     videoAdapter.addVideos(videoResponse.videos)
-
-                    // Check if it's the last page
                     isLastPage = videoResponse.videos.isEmpty()
                 } else {
                     Toast.makeText(this@MainActivity, "Error: ${response.code()}", Toast.LENGTH_SHORT).show()
@@ -103,10 +134,16 @@ class MainActivity : AppCompatActivity() {
 
             override fun onFailure(call: Call<VideoResponse>, t: Throwable) {
                 isLoading = false
-                videoAdapter.setLoading(false) // Hide the loading spinner in case of failure
-
+                videoAdapter.setLoading(false)
                 Toast.makeText(this@MainActivity, "Request failed: ${t.message}", Toast.LENGTH_SHORT).show()
             }
         })
+    }
+
+    private fun resetVideos() {
+        currentPage = 1
+        videoList.clear()
+        videoAdapter.notifyDataSetChanged()
+        isLastPage = false
     }
 }
