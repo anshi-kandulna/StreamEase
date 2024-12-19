@@ -16,7 +16,12 @@ class Splash : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         enableEdgeToEdge()
-        // Adjusting padding for system bars (status bar, navigation bar)
+        setContentView(R.layout.activity_splash)
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.splash_layout)) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
 
         setContentView(R.layout.activity_splash)
 

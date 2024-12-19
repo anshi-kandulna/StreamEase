@@ -7,15 +7,15 @@
     android:layout_height="match_parent"
     android:background="@color/black">
 
-    <!-- AppBarLayout for scrollable search bar -->
+    <!-- AppBarLayout for scrollable search bar and buttons -->
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="end"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        android:background="@drawable/searchviewbg"
-        android:layout_margin="8dp">
+        android:backgroundTint="@color/black"
+        app:layout_scrollFlags="scroll|enterAlwaysCollapsed">
 
+        <!-- SearchView with scroll behavior -->
         <androidx.appcompat.widget.SearchView
             android:id="@+id/searchView"
             android:layout_width="match_parent"
@@ -24,13 +24,97 @@
             android:clickable="true"
             android:queryHint="Search videos..."
             android:background="@drawable/searchviewbg"
+            android:layout_margin="8dp"
             app:layout_scrollFlags="scroll|enterAlways" />
+
+        <!-- HorizontalScrollView for category buttons -->
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none"
+            app:layout_scrollFlags="scroll|enterAlways">
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:orientation="horizontal">
+                <Button
+                    android:id="@+id/btnAll"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_margin="2dp"
+                    android:text="All"
+                    android:backgroundTint="@color/black_grey"
+                    android:textColor="@color/white"
+                    android:textSize="15sp"
+                    android:gravity="center" />
+                <Button
+                    android:id="@+id/btnNature"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_margin="2dp"
+                    android:text="Nature"
+                    android:backgroundTint="@color/black_grey"
+                    android:textColor="@color/white"
+                    android:textSize="15sp"
+                    android:gravity="center" />
+                <Button
+                    android:id="@+id/btnCar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:text="Car"
+                    android:textSize="15sp"
+                    android:backgroundTint="@color/black_grey"
+                    android:textColor="@color/white"
+                    android:layout_margin="2dp"
+                    android:gravity="center" />
+                <Button
+                    android:id="@+id/btnDog"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:text="Dog"
+                    android:textSize="15sp"
+                    android:backgroundTint="@color/black_grey"
+                    android:textColor="@color/white"
+                    android:layout_margin="2dp"
+                    android:gravity="center" />
+                <Button
+                    android:id="@+id/btnCat"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:text="Cat"
+                    android:textSize="15sp"
+                    android:backgroundTint="@color/black_grey"
+                    android:textColor="@color/white"
+                    android:layout_margin="2dp"
+                    android:gravity="center" />
+                <Button
+                    android:id="@+id/btnBeach"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:text="Beach"
+                    android:textSize="15sp"
+                    android:backgroundTint="@color/black_grey"
+                    android:textColor="@color/white"
+                    android:layout_margin="2dp"
+                    android:gravity="center" />
+                <Button
+                    android:id="@+id/btnMountain"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:text="Mountain"
+                    android:backgroundTint="@color/black_grey"
+                    android:textColor="@color/white"
+                    android:layout_margin="2dp"
+                    android:textSize="15sp"
+                    android:gravity="center" />
+            </LinearLayout>
+        </HorizontalScrollView>
     </com.google.android.material.appbar.AppBarLayout>
 
     <!-- RecyclerView to display videos -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
-        android:layout_marginTop="5dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
