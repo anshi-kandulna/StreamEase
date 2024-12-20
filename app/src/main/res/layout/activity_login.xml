@@ -43,6 +43,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Password"
+        android:layout_marginTop="5dp"
         app:endIconMode="password_toggle"
         app:boxStrokeColor="@color/white"
         app:hintTextColor="@color/white"
@@ -56,15 +57,7 @@
     </com.google.android.material.textfield.TextInputLayout>
 
 
-    <!-- Password Requirement -->
-    <TextView
-        android:id="@+id/passwordRequirementText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="*Password must be at least 6 characters long."
-        android:textSize="12sp"
-        android:padding="8dp"
-        android:textColor="@color/white"/>
+
 
     <!-- Login Button -->
     <Button

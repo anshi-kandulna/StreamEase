@@ -6,9 +6,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.MediaItem
-import com.google.android.exoplayer2.ui.PlayerView
+import androidx.media3.common.MediaItem
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.ui.PlayerView
 
 class PlayerActivity : AppCompatActivity() {
 
@@ -18,12 +18,17 @@ class PlayerActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_player)
-
         enableEdgeToEdge()
-        setContentView(R.layout.activity_player)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.player_layout)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
+
+        // Apply edge-to-edge insets
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.player_layout)) { view, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
 
@@ -36,7 +41,7 @@ class PlayerActivity : AppCompatActivity() {
             return
         }
 
-        // Initialize ExoPlayer
+        // Initialize Media3 ExoPlayer
         player = ExoPlayer.Builder(this).build()
         playerView.player = player
 
@@ -51,7 +56,11 @@ class PlayerActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        // Release the player when the activity is paused
+        player.pause()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
         player.release()
     }
 }

@@ -57,11 +57,15 @@ dependencies {
     //Glide
     implementation(libs.glide)
     annotationProcessor(libs.compiler)
-    //exoplayer
-    implementation(libs.exoplayer)
     //lottie
     implementation(libs.lottie)
     implementation(libs.lottie.v600)
+    // ExoPlayer from Media3
+    implementation(libs.androidx.media3.exoplayer.v100)
+    implementation(libs.androidx.media3.ui.v100)
+
+
+
 
 }
 apply(plugin = "com.google.gms.google-services")

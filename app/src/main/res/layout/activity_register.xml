@@ -46,7 +46,7 @@
         android:layout_height="wrap_content"
         android:hint="Password"
         app:endIconMode="password_toggle"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="5dp"
         app:boxBackgroundMode="outline"
         app:boxStrokeColor="@color/white"
         app:hintTextColor="@color/white">
@@ -69,8 +69,7 @@
         android:layout_marginTop="8dp"
         android:text="*Password must be at least 6 characters long."
         android:textSize="12sp"
-        android:textColor="@color/white"
-        android:gravity="center" />
+        android:textColor="@color/white" />
 
 
 
