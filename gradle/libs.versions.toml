@@ -18,6 +18,7 @@ lottieVersion = "6.0.0"
 material = "1.12.0"
 activity = "1.9.3"
 constraintlayout = "2.2.0"
+media = "1.7.0"
 media3Exoplayer = "1.5.1"
 media3Ui = "1.0.3"
 media3UiVersion = "1.0.0"
@@ -25,9 +26,12 @@ squareupRetrofit = "2.9.0"
 firebaseAuthKtx = "23.1.0"
 googleGmsGoogleServices = "4.4.2"
 firebaseAuth = "23.1.0"
+media3Session = "1.5.1"
+lifecycleViewmodelAndroid = "2.8.7"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-media = { module = "androidx.media:media", version.ref = "media" }
 androidx-media3-exoplayer = { module = "androidx.media3:media3-exoplayer", version.ref = "media3Exoplayer" }
 androidx-media3-exoplayer-v100 = { module = "androidx.media3:media3-exoplayer", version.ref = "androidxMedia3ExoplayerVersion" }
 androidx-media3-exoplayer-v103 = { module = "androidx.media3:media3-exoplayer", version.ref = "androidxMedia3Exoplayer" }
@@ -52,6 +56,8 @@ androidx-constraintlayout = { group = "androidx.constraintlayout", name = "const
 squareup-retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "squareupRetrofit" }
 firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx", version.ref = "firebaseAuthKtx" }
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuth" }
+androidx-media3-session = { group = "androidx.media3", name = "media3-session", version.ref = "media3Session" }
+androidx-lifecycle-viewmodel-android = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-android", version.ref = "lifecycleViewmodelAndroid" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

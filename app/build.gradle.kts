@@ -46,6 +46,8 @@ dependencies {
     implementation(libs.firebase.auth.ktx)
     implementation(libs.firebase.auth) //firebase
     implementation(libs.firebase.auth.v2210)
+    implementation(libs.androidx.lifecycle.viewmodel.android)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -60,9 +62,9 @@ dependencies {
     //lottie
     implementation(libs.lottie)
     implementation(libs.lottie.v600)
-    // ExoPlayer from Media3
-    implementation(libs.androidx.media3.exoplayer.v100)
-    implementation(libs.androidx.media3.ui.v100)
+
+    implementation(libs.androidx.media)
+    implementation(libs.exoplayer)
 
 
 

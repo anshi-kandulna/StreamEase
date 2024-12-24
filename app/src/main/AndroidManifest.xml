@@ -3,6 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:allowBackup="true"
@@ -14,9 +17,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.StreamEase"
         tools:targetApi="31">
+
         <activity
             android:name=".RegisterActivity"
             android:exported="false" />
+
+        <service android:name=".PlayerService" android:enabled="true" android:exported="false" />
         <activity
             android:name=".LoginActivity"
             android:exported="false" />
@@ -32,7 +38,8 @@
         <activity
             android:name=".MainActivity"
             android:exported="true" />
-        <activity android:name=".PlayerActivity" />
+        <activity android:name=".PlayerActivity">
+        </activity>
     </application>
 
 </manifest>
