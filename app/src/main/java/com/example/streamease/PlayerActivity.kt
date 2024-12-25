@@ -24,7 +24,10 @@ class PlayerActivity : AppCompatActivity() {
         playerView = findViewById(R.id.playerView)
 
         val videoUrl = intent.getStringExtra("videoUrl")
-        if (videoUrl.isNullOrEmpty()) {
+        val fromNotification = intent.getBooleanExtra("fromNotification", false)
+
+        // If videoUrl is null and not from the notification, show a toast
+        if (videoUrl.isNullOrEmpty() && !fromNotification) {
             Toast.makeText(this, "Video URL is missing", Toast.LENGTH_SHORT).show()
             return
         }
@@ -34,6 +37,20 @@ class PlayerActivity : AppCompatActivity() {
             putExtra("videoUrl", videoUrl)
         }
         startService(serviceIntent)
+    }
+    // Handle new intents to avoid multiple player screens
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent) // Update the intent
+
+        // Retrieve the updated video URL and play it
+        val videoUrl = intent.getStringExtra("videoUrl")
+        if (!videoUrl.isNullOrEmpty()) {
+            val serviceIntent = Intent(this, PlayerService::class.java).apply {
+                putExtra("videoUrl", videoUrl)
+            }
+            startService(serviceIntent)
+        }
     }
 
     override fun onStart() {

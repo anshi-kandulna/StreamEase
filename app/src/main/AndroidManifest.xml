@@ -42,8 +42,9 @@
         <activity
             android:name=".MainActivity"
             android:exported="true" />
-        <activity android:name=".PlayerActivity">
-        </activity>
+        <activity
+            android:name=".PlayerActivity"
+            android:launchMode="singleTop" />
     </application>
 
 </manifest>

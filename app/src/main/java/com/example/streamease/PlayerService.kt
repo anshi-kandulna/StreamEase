@@ -21,6 +21,7 @@ import android.os.Binder
 class PlayerService : Service() {
     private lateinit var player: ExoPlayer
     private var playerNotificationManager: PlayerNotificationManager? = null
+    private var videoUrl: String? = null
 
     // Binder for communication with the activity
     private val binder = PlayerBinder()
@@ -61,7 +62,11 @@ class PlayerService : Service() {
             }
 
             override fun createCurrentContentIntent(player: Player): PendingIntent? {
-                val intent = Intent(this@PlayerService, PlayerActivity::class.java)
+                val intent = Intent(this@PlayerService, PlayerActivity::class.java).apply {
+                    putExtra("videoUrl", this@PlayerService.videoUrl) // Pass the video URL
+                    putExtra("fromNotification", true) // Indicate notification launch
+                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                }
                 return PendingIntent.getActivity(
                     this@PlayerService,
                     0,
@@ -70,7 +75,8 @@ class PlayerService : Service() {
                 )
             }
 
-            override fun getCurrentContentText(player: Player): CharSequence? {
+
+            override fun getCurrentContentText(player: Player): CharSequence {
                 return "Playing your video"
             }
 
@@ -115,6 +121,7 @@ class PlayerService : Service() {
         }
         return START_STICKY
     }
+
 
     override fun onBind(intent: Intent?): IBinder? {
         return binder

@@ -61,11 +61,11 @@ class MainActivity : AppCompatActivity() {
         apiService = ApiClient.getClient().create(PexelsApiService::class.java)
 
         videoAdapter = VideoAdapter(videoList) { videoUrl ->
-            val intent = Intent(this@MainActivity, PlayerActivity::class.java)
-            intent.putExtra("videoUrl", videoUrl)
+            val intent = Intent(this@MainActivity, PlayerActivity::class.java).apply {
+                putExtra("videoUrl", videoUrl) // Pass the video URL
+                flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            }
             startActivity(intent)
-            // Start PlayerService if not already started and pass video URL to it
-
         }
         recyclerView.adapter = videoAdapter
 
