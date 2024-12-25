@@ -1,16 +1,21 @@
 package com.example.streamease
 
+import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
+import android.content.ServiceConnection
 import android.os.Bundle
+import android.os.IBinder
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.ui.PlayerView
 
 class PlayerActivity : AppCompatActivity() {
-    private lateinit var player: ExoPlayer
     private lateinit var playerView: PlayerView
+    private var playerService: PlayerService? = null
+    private var exoPlayer: ExoPlayer? = null
+    private var isBound = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -18,32 +23,53 @@ class PlayerActivity : AppCompatActivity() {
 
         playerView = findViewById(R.id.playerView)
 
-        // Retrieve the video URL from the intent
         val videoUrl = intent.getStringExtra("videoUrl")
         if (videoUrl.isNullOrEmpty()) {
             Toast.makeText(this, "Video URL is missing", Toast.LENGTH_SHORT).show()
             return
         }
 
-        // Initialize ExoPlayer
-        player = ExoPlayer.Builder(this).build()
-        playerView.player = player
-
-        // Start the service for background playback
+        // Start the foreground service
         val serviceIntent = Intent(this, PlayerService::class.java).apply {
             putExtra("videoUrl", videoUrl)
         }
         startService(serviceIntent)
-
-        // Create a MediaItem and prepare the player
-        val mediaItem = MediaItem.fromUri(videoUrl)
-        player.setMediaItem(mediaItem)
-        player.prepare()
-        player.play()
     }
 
-    override fun onPause() {
-        super.onPause()
-        // You don't need to release the player here, as it's handled by the service
+    override fun onStart() {
+        super.onStart()
+        // Bind to the service
+        val serviceIntent = Intent(this, PlayerService::class.java)
+        bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        if (isBound) {
+            unbindService(serviceConnection)
+            isBound = false
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        playerService?.let {
+            stopService(Intent(this, PlayerService::class.java))
+        }
+    }
+
+    // ServiceConnection to bind the service
+    private val serviceConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            val binder = service as PlayerService.PlayerBinder
+            playerService = binder.getService()
+            exoPlayer = binder.getPlayer()
+            playerView.player = exoPlayer
+            isBound = true
+        }
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+            isBound = false
+        }
     }
 }

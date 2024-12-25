@@ -47,6 +47,7 @@ dependencies {
     implementation(libs.firebase.auth) //firebase
     implementation(libs.firebase.auth.v2210)
     implementation(libs.androidx.lifecycle.viewmodel.android)
+    implementation(libs.androidx.lifecycle.service)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -65,6 +66,11 @@ dependencies {
 
     implementation(libs.androidx.media)
     implementation(libs.exoplayer)
+    // WorkManager Core library
+    implementation(libs.androidx.work.runtime) // Use the latest version available
+
+    // (Optional) Add the following for Kotlin extensions
+    implementation(libs.androidx.work.runtime.ktx)
 
 
 

@@ -5,7 +5,6 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
-import android.app.Service
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -16,10 +15,15 @@ import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ui.PlayerNotificationManager
+import android.app.Service
+import android.os.Binder
 
 class PlayerService : Service() {
     private lateinit var player: ExoPlayer
     private var playerNotificationManager: PlayerNotificationManager? = null
+
+    // Binder for communication with the activity
+    private val binder = PlayerBinder()
 
     override fun onCreate() {
         super.onCreate()
@@ -29,47 +33,9 @@ class PlayerService : Service() {
 
         // Set up the notification
         setupNotification()
-        player.addListener(object : Player.Listener {
-            override fun onPlaybackStateChanged(state: Int) {
-                when (state) {
-                    Player.STATE_READY -> {
-                        // Handle when the player is ready
-                    }
-                    Player.STATE_ENDED -> {
-                        // Handle when playback ends
-                    }
-                }
-            }
-        })
     }
 
-    private fun createNotification(): Notification {
-        val channelId = "media_playback_channel"
-        val intent = Intent(this, PlayerActivity::class.java)
-        val pendingIntent = PendingIntent.getActivity(
-            this,
-            0,
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            Notification.Builder(this, channelId)
-                .setContentTitle("StreamEase")
-                .setContentText("Playing Video")
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
-                .setContentIntent(pendingIntent)
-                .build()
-        } else {
-            NotificationCompat.Builder(this, channelId)
-                .setContentTitle("StreamEase")
-                .setContentText("Playing Video")
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
-                .setContentIntent(pendingIntent)
-                .build()
-        }
-    }
-
+    // Set up the notification for media playback
     @SuppressLint("ForegroundServiceType")
     private fun setupNotification() {
         val channelId = "media_playback_channel"
@@ -83,14 +49,13 @@ class PlayerService : Service() {
             notificationManager?.createNotificationChannel(channel)
         }
 
-        startForeground(1, createNotification())
+        startForeground(1, createNotification(channelId))
 
         playerNotificationManager = PlayerNotificationManager.Builder(
             this,
-            1, // Notification ID
+            1,
             channelId
-        ).setMediaDescriptionAdapter(object :
-            PlayerNotificationManager.MediaDescriptionAdapter {
+        ).setMediaDescriptionAdapter(object : PlayerNotificationManager.MediaDescriptionAdapter {
             override fun getCurrentContentTitle(player: Player): CharSequence {
                 return "Playing Video"
             }
@@ -118,10 +83,28 @@ class PlayerService : Service() {
             }
         }).build()
 
-        // Attach the player to the PlayerNotificationManager
         playerNotificationManager?.setPlayer(player)
     }
 
+    // Create the notification for the foreground service
+    private fun createNotification(channelId: String): Notification {
+        val intent = Intent(this, PlayerActivity::class.java)
+        val pendingIntent = PendingIntent.getActivity(
+            this,
+            0,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        return NotificationCompat.Builder(this, channelId)
+            .setContentTitle("StreamEase")
+            .setContentText("Playing video in background...")
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setContentIntent(pendingIntent)
+            .build()
+    }
+
+    // When a video URL is passed, prepare and start playback
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val videoUrl = intent?.getStringExtra("videoUrl")
         if (!videoUrl.isNullOrEmpty()) {
@@ -133,11 +116,23 @@ class PlayerService : Service() {
         return START_STICKY
     }
 
+    override fun onBind(intent: Intent?): IBinder? {
+        return binder
+    }
+
+    // Binder for accessing player in the activity
+    inner class PlayerBinder : Binder() {
+        // Get the ExoPlayer instance
+        fun getPlayer(): ExoPlayer = player
+
+        // Get the PlayerService instance
+        fun getService(): PlayerService = this@PlayerService
+    }
+
+
     override fun onDestroy() {
         super.onDestroy()
         player.release()
         playerNotificationManager?.setPlayer(null)
     }
-
-    override fun onBind(intent: Intent?): IBinder? = null
 }
