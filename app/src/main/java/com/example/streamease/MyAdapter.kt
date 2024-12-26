@@ -11,7 +11,7 @@ import com.bumptech.glide.Glide
 
 class VideoAdapter(
     private val videos: MutableList<Video>,  // Change to MutableList to allow adding items
-    private val onClick: (String) -> Unit  // Add a click handler to pass the video URL
+    private val onClick: (String, Int) -> Unit  // Pass video URL and position
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private val VIEW_TYPE_ITEM = 0
@@ -23,7 +23,7 @@ class VideoAdapter(
         private val thumbnailImageView: ImageView = itemView.findViewById(R.id.thumbnailImageView)
         private val titleTextView: TextView = itemView.findViewById(R.id.titleTextView)
 
-        fun bind(video: Video) {
+        fun bind(video: Video, position: Int) {
             // Load the thumbnail image using Glide
             Glide.with(itemView.context)
                 .load(video.image)  // Using the 'image' URL for thumbnail
@@ -32,10 +32,9 @@ class VideoAdapter(
             // Set the title (using the user's name)
             titleTextView.text = video.user.name  // Setting the user's name as title
 
-            // Set up the click listener for the item
+            // Handle click event to pass the video URL and position
             itemView.setOnClickListener {
-                // When the item is clicked, pass the video URL to the click handler
-                onClick(video.video_files.firstOrNull()?.link ?: "") // Pass the first video file URL
+                onClick(video.url, position)  // Pass the video URL and position
             }
         }
     }
@@ -64,7 +63,7 @@ class VideoAdapter(
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
             is VideoViewHolder -> {
-                holder.bind(videos[position])
+                holder.bind(videos[position], position)
             }
             is LoadingViewHolder -> {
                 // Show or hide progress bar based on the loading state

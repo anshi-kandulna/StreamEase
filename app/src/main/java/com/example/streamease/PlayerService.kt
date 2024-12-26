@@ -17,6 +17,7 @@ import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ui.PlayerNotificationManager
 import android.app.Service
 import android.os.Binder
+import com.google.android.exoplayer2.util.Log
 
 class PlayerService : Service() {
     private lateinit var player: ExoPlayer
@@ -60,13 +61,13 @@ class PlayerService : Service() {
             override fun getCurrentContentTitle(player: Player): CharSequence {
                 return "Playing Video"
             }
-
             override fun createCurrentContentIntent(player: Player): PendingIntent? {
                 val intent = Intent(this@PlayerService, PlayerActivity::class.java).apply {
-                    putExtra("videoUrl", this@PlayerService.videoUrl) // Pass the video URL
+                    putExtra("videoUrl", this@PlayerService.videoUrl)  // Pass the video URL
                     putExtra("fromNotification", true) // Indicate notification launch
                     flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
                 }
+
                 return PendingIntent.getActivity(
                     this@PlayerService,
                     0,
@@ -114,16 +115,12 @@ class PlayerService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val videoUrl = intent?.getStringExtra("videoUrl")
         if (!videoUrl.isNullOrEmpty()) {
-            val mediaItem = MediaItem.fromUri(videoUrl)
-            player.setMediaItem(mediaItem)
-            player.prepare()
-            player.play()
+            playNewVideo(videoUrl) // Use the new method
         }
         return START_STICKY
     }
 
-
-    override fun onBind(intent: Intent?): IBinder? {
+    override fun onBind(intent: Intent?): IBinder {
         return binder
     }
 
@@ -136,10 +133,22 @@ class PlayerService : Service() {
         fun getService(): PlayerService = this@PlayerService
     }
 
-
     override fun onDestroy() {
         super.onDestroy()
         player.release()
         playerNotificationManager?.setPlayer(null)
     }
+
+    // Method to play a new video
+    fun playNewVideo(videoUrl: String) {
+        player.apply {
+            stop() // Stop the current video
+            clearMediaItems() // Clear the current media items
+            setMediaItem(MediaItem.fromUri(videoUrl)) // Set the new video
+            prepare() // Prepare the player
+            play() // Start playback
+        }
+        this.videoUrl = videoUrl // Update the video URL for notification
+    }
+
 }

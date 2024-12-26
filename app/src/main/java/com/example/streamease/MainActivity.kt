@@ -60,9 +60,11 @@ class MainActivity : AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
         apiService = ApiClient.getClient().create(PexelsApiService::class.java)
 
-        videoAdapter = VideoAdapter(videoList) { videoUrl ->
+        videoAdapter = VideoAdapter(videoList) { videoUrl, position ->
+            VideoRepository.videoList = videoList // Save the video list in the repository
             val intent = Intent(this@MainActivity, PlayerActivity::class.java).apply {
                 putExtra("videoUrl", videoUrl) // Pass the video URL
+                putExtra("videoIndex", position) // Pass the index (position) of the selected video
                 flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
             }
             startActivity(intent)
